@@ -54,13 +54,13 @@
             <option value="blue">Blue Filter</option>
             <option value="green">Green Filter</option>
         </select>
-        <select id="borderSelect" onchange="changeBorder()">
-            <option value="none">No Border</option>
-            <option value="solid">Solid Border</option>
-            <option value="dashed">Dashed Border</option>
-            <option value="dotted">Dotted Border</option>
-        </select>
-    </div>
+<select id="borderSelect" onchange="changeBorder()">
+    <option value="none">No Border</option>
+    <option value="solid">Solid Border</option>
+    <option value="dashed">Dashed Border</option>
+    <option value="dotted">Dotted Border</option>
+    <option value="rainbow">Rainbow Border</option>
+</select>
 
     <div id="videoContainer"></div>
 
@@ -104,7 +104,23 @@
 
             return { platform, videoId };
         }
+let isReversed = false;
 
+function toggleReversePlayback() {
+    isReversed = !isReversed;
+    const videos = document.querySelectorAll('#videoContainer iframe');
+    videos.forEach(video => {
+        if (video.src.includes('youtube')) {
+            const player = new YT.Player(video);
+            if (isReversed) {
+                player.setPlaybackRate(-1);
+            } else {
+                player.setPlaybackRate(1);
+            }
+        }
+        // Note: Vimeo, TikTok, and Instagram don't support reverse playback via their embed APIs
+    });
+}
         function addVideo(platform, videoId, videoTitle) {
             videoCount++;
             const videoWrapper = document.createElement('div');
@@ -118,11 +134,11 @@
                 videoWrapper.appendChild(titleElement);
             }
 
-            let embedCode;
-            switch (platform) {
-                case 'youtube':
-                    embedCode = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                    break;
+    let embedCode;
+    switch (platform) {
+        case 'youtube':
+            embedCode = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            break;
                 case 'vimeo':
                     embedCode = `<iframe src="https://player.vimeo.com/video/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
                     break;
@@ -220,26 +236,27 @@
             });
         }
 
-        function changeBorder() {
-            const borderStyle = document.getElementById('borderSelect').value;
-            const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
-            videos.forEach(video => {
-                switch(borderStyle) {
-                    case 'none':
-                        video.style.border = 'none';
-                        break;
-                    case 'solid':
-                        video.style.border = '3px solid black';
-                        break;
-                    case 'dashed':
-                        video.style.border = '3px dashed black';
-                        break;
-                    case 'dotted':
-                        video.style.border = '3px dotted black';
-                        break;
-                }
-            });
+function changeBorder() {
+    const borderStyle = document.getElementById('borderSelect').value;
+    const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
+    videos.forEach(video => {
+        switch(borderStyle) {
+            case 'none':
+                video.style.border = 'none';
+                break;
+            case 'solid':
+                video.style.border = '15px solid black';
+                break;
+            case 'dashed':
+                video.style.border = '15px dashed black';
+                break;
+            case 'dotted':
+                video.style.border = '15px dotted black';
+                break;
+            case 'rainbow':
+                video.style.border = '15px solid transparent';
+                video.style.borderImage = 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet) 1';
+                break;
         }
-    </script>
-</body>
-</html>
+    });
+}
