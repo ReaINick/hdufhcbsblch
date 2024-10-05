@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="frame-src https://www.youtube-nocookie.com https://player.vimeo.com https://www.tiktok.com https://www.instagram.com;">
     <title>Video Embed</title>
+    <!-- Rest of your head content -->
     <style>
         .video-wrapper {
             position: relative;
@@ -170,25 +169,79 @@ function loadTikTokScript() {
         }
     }
 }
-        function resizeVideos(size) {
-            const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
-            videos.forEach(video => {
-                switch(size) {
-                    case 'small':
-                        video.style.width = '280px';
-                        video.style.height = '157px';
-                        break;
-                    case 'medium':
-                        video.style.width = '560px';
-                        video.style.height = '315px';
-                        break;
-                    case 'large':
-                        video.style.width = '840px';
-                        video.style.height = '472px';
-                        break;
-                }
-            });
+function resizeVideos(size) {
+    const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
+    videos.forEach(video => {
+        let width, height;
+        switch(size) {
+            case 'small':
+                width = '280px';
+                height = '157px';
+                break;
+            case 'medium':
+                width = '560px';
+                height = '315px';
+                break;
+            case 'large':
+                width = '840px';
+                height = '472px';
+                break;
         }
+        if (video.tagName.toLowerCase() === 'iframe') {
+            video.style.width = width;
+            video.style.height = height;
+        } else if (video.tagName.toLowerCase() === 'blockquote') {
+            // For TikTok, we need to recreate the embed
+            const videoId = video.getAttribute('data-video-id');
+            const newEmbed = createTikTokEmbed(videoId, width, height);
+            video.parentNode.replaceChild(newEmbed, video);
+            loadTikTokScript();
+        }
+    });
+}
+
+function createTikTokEmbed(videoId, width, height) {
+    const blockquote = document.createElement('blockquote');
+    blockquote.className = 'tiktok-embed';
+    blockquote.setAttribute('cite', `https://www.tiktok.com/@username/video/${videoId}`);
+    blockquote.setAttribute('data-video-id', videoId);
+    blockquote.style.maxWidth = width;
+    blockquote.style.minWidth = '325px';
+    blockquote.innerHTML = '<section></section>';
+    return blockquote;
+}
+
+function addVideo(platform, videoId, videoTitle) {
+    // ... (previous code remains the same)
+
+    switch (platform) {
+        // ... (other cases remain the same)
+        case 'tiktok':
+            embedCode = createTikTokEmbed(videoId, '560px', '315px').outerHTML;
+            break;
+        // ... (other cases remain the same)
+    }
+
+    // ... (rest of the function remains the same)
+
+    if (platform === 'tiktok') {
+        loadTikTokScript();
+    }
+}
+
+function loadTikTokScript() {
+    if (!document.querySelector('script[src="https://www.tiktok.com/embed.js"]')) {
+        const script = document.createElement('script');
+        script.src = "https://www.tiktok.com/embed.js";
+        script.async = true;
+        document.body.appendChild(script);
+    } else {
+        // If the script is already loaded, we need to tell TikTok to process the new embed
+        if (window.tiktok && window.tiktok.reload) {
+            window.tiktok.reload();
+        }
+    }
+}
 
         function changeFilter() {
             const filterColor = document.getElementById('filterSelect').value;
