@@ -82,26 +82,27 @@
             }
         });
 
-        function extractVideoInfo(url) {
-            let platform, videoId;
+function extractVideoInfo(url) {
+    let platform, videoId;
 
-            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                platform = 'youtube';
-                const urlParams = new URLSearchParams(new URL(url).search);
-                videoId = urlParams.get('v') || url.split('/').pop();
-            } else if (url.includes('vimeo.com')) {
-                platform = 'vimeo';
-                videoId = url.split('/').pop();
-            } else if (url.includes('tiktok.com')) {
-                platform = 'tiktok';
-                videoId = url.split('/').pop();
-            } else if (url.includes('instagram.com')) {
-                platform = 'instagram';
-                videoId = url.split('/')[4];
-            }
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        platform = 'youtube';
+        const urlParams = new URLSearchParams(new URL(url).search);
+        videoId = urlParams.get('v') || url.split('/').pop();
+    } else if (url.includes('vimeo.com')) {
+        platform = 'vimeo';
+        videoId = url.split('/').pop();
+    } else if (url.includes('tiktok.com')) {
+        platform = 'tiktok';
+        const matches = url.match(/video\/(\d+)/);
+        videoId = matches ? matches[1] : null;
+    } else if (url.includes('instagram.com')) {
+        platform = 'instagram';
+        videoId = url.split('/')[4];
+    }
 
-            return { platform, videoId };
-        }
+    return { platform, videoId };
+}
 
        function addVideo(platform, videoId, videoTitle) {
     videoCount++;
