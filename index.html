@@ -69,14 +69,14 @@
     <script>
         let videoCount = 0;
 
-        document.getElementById('addVideoButton').addEventListener('click', async function() {
+        document.getElementById('addVideoButton').addEventListener('click', function() {
             const videoUrl = document.getElementById('videoUrlInput').value.trim();
             const videoTitle = document.getElementById('videoTitleInput').value.trim();
             
             if (videoUrl) {
                 const { platform, videoId } = extractVideoInfo(videoUrl);
                 if (videoId) {
-                    await addVideo(platform, videoId, videoTitle);
+                    addVideo(platform, videoId, videoTitle);
                 } else {
                     alert('Invalid video URL');
                 }
@@ -105,20 +105,7 @@
             return { platform, videoId };
         }
 
-        async function getTikTokOEmbed(url) {
-            try {
-                const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch oEmbed data');
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('Error fetching TikTok oEmbed:', error);
-                return null;
-            }
-        }
-
-        async function addVideo(platform, videoId, videoTitle) {
+        function addVideo(platform, videoId, videoTitle) {
             videoCount++;
             const videoWrapper = document.createElement('div');
             videoWrapper.className = 'video-wrapper';
@@ -140,13 +127,7 @@
                     embedCode = `<iframe src="https://player.vimeo.com/video/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
                     break;
                 case 'tiktok':
-                    const tiktokUrl = `https://www.tiktok.com/video/${videoId}`;
-                    const oEmbedData = await getTikTokOEmbed(tiktokUrl);
-                    if (oEmbedData && oEmbedData.html) {
-                        embedCode = oEmbedData.html;
-                    } else {
-                        embedCode = `<blockquote class="tiktok-embed" cite="${tiktokUrl}" data-video-id="${videoId}" style="max-width: 605px;min-width: 325px;"><section></section></blockquote>`;
-                    }
+                    embedCode = `<blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${videoId}" data-video-id="${videoId}" style="max-width: 605px;min-width: 325px;"><section></section></blockquote><script async src="https://www.tiktok.com/embed.js"></script>`;
                     break;
                 case 'instagram':
                     embedCode = `<iframe width="560" height="315" src="https://www.instagram.com/p/${videoId}/embed" frameborder="0"></iframe>`;
@@ -175,92 +156,90 @@
             }
         }
 
-        function loadTikTokScript() {   
-           if (!document.querySelector('script[src="https://www.tiktok.com/embed.js"]')) {
-               const script = document.createElement('script');
-               script.src = "https://www.tiktok.com/embed.js";
-               script.async = true;
-               document.body.appendChild(script);
-           } else {
-               // If the script is already loaded, we need to tell TikTok to process the new embed
-               if (window.tiktok && window.tiktok.reload) {
-                   window.tiktok.reload();
-               }
-           }
+        function loadTikTokScript() {
+            if (!document.querySelector('script[src="https://www.tiktok.com/embed.js"]')) {
+                const script = document.createElement('script');
+                script.src = "https://www.tiktok.com/embed.js";
+                script.async = true;
+                document.body.appendChild(script);
+            } else {
+                if (window.tiktok && window.tiktok.reload) {
+                    window.tiktok.reload();
+                }
+            }
         }
 
         function resizeVideos(size) {
-           const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
-           videos.forEach(video => {
-               let width, height;
-               switch(size) {
-                   case 'small':
-                       width = '280px';
-                       height = '157px';
-                       break;
-                   case 'medium':
-                       width = '560px';
-                       height = '315px';
-                       break;
-                   case 'large':
-                       width = '840px';
-                       height = '472px';
-                       break;
-               }
-               if (video.tagName.toLowerCase() === 'iframe') {
-                   video.style.width = width;
-                   video.style.height = height;
-               } else if (video.tagName.toLowerCase() === 'blockquote' && video.classList.contains('tiktok-embed')) {
-                   video.style.maxWidth = width; // TikTok adjusts height automatically
-               }
-           });
-           // Reload TikTok embeds after resizing
-           if (window.tiktok && window.tiktok.reload) {
-               window.tiktok.reload();
-           }
-       }
+            const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
+            videos.forEach(video => {
+                let width, height;
+                switch(size) {
+                    case 'small':
+                        width = '280px';
+                        height = '157px';
+                        break;
+                    case 'medium':
+                        width = '560px';
+                        height = '315px';
+                        break;
+                    case 'large':
+                        width = '840px';
+                        height = '472px';
+                        break;
+                }
+                if (video.tagName.toLowerCase() === 'iframe') {
+                    video.style.width = width;
+                    video.style.height = height;
+                } else if (video.tagName.toLowerCase() === 'blockquote' && video.classList.contains('tiktok-embed')) {
+                    video.style.maxWidth = width;
+                }
+            });
+            if (window.tiktok && window.tiktok.reload) {
+                window.tiktok.reload();
+            }
+        }
 
-       function changeFilter() {
-           const filterColor = document.getElementById('filterSelect').value;
-           const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
-           videos.forEach(video => {
-               switch(filterColor) {
-                   case 'none':
-                       video.style.filter = 'none';
-                       break;
-                   case 'red':
-                       video.style.filter = 'sepia(50%) saturate(200%) brightness(50%) hue-rotate(-50deg)';
-                       break;
-                   case 'blue':
-                       video.style.filter = 'sepia(50%) saturate(200%) brightness(50%) hue-rotate(180deg)';
-                       break;
-                   case 'green':
-                       video.style.filter = 'sepia(50%) saturate(200%) brightness(50%) hue-rotate(90deg)';
-                       break;
-               }
-           });
-       }
+        function changeFilter() {
+            const filterColor = document.getElementById('filterSelect').value;
+            const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
+            videos.forEach(video => {
+                switch(filterColor) {
+                    case 'none':
+                        video.style.filter = 'none';
+                        break;
+                    case 'red':
+                        video.style.filter = 'sepia(50%) saturate(200%) brightness(50%) hue-rotate(-50deg)';
+                        break;
+                    case 'blue':
+                        video.style.filter = 'sepia(50%) saturate(200%) brightness(50%) hue-rotate(180deg)';
+                        break;
+                    case 'green':
+                        video.style.filter = 'sepia(50%) saturate(200%) brightness(50%) hue-rotate(90deg)';
+                        break;
+                }
+            });
+        }
 
-       function changeBorder() {
-           const borderStyle = document.getElementById('borderSelect').value;
-           const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
-           videos.forEach(video => {
-               switch(borderStyle) {
-                   case 'none':
-                       video.style.border = 'none';
-                       break;
-                   case 'solid':
-                       video.style.border = '3px solid black';
-                       break;
-                   case 'dashed':
-                       video.style.border = '3px dashed black';
-                       break;
-                   case 'dotted':
-                       video.style.border = '3px dotted black';
-                       break;
-               }
-           });
-       }
+        function changeBorder() {
+            const borderStyle = document.getElementById('borderSelect').value;
+            const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
+            videos.forEach(video => {
+                switch(borderStyle) {
+                    case 'none':
+                        video.style.border = 'none';
+                        break;
+                    case 'solid':
+                        video.style.border = '3px solid black';
+                        break;
+                    case 'dashed':
+                        video.style.border = '3px dashed black';
+                        break;
+                    case 'dotted':
+                        video.style.border = '3px dotted black';
+                        break;
+                }
+            });
+        }
     </script>
 </body>
 </html>
