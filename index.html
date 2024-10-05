@@ -103,53 +103,71 @@
             return { platform, videoId };
         }
 
-        function addVideo(platform, videoId, videoTitle) {
-            videoCount++;
-            const videoWrapper = document.createElement('div');
-            videoWrapper.className = 'video-wrapper';
-            videoWrapper.id = `video-wrapper-${videoCount}`;
-            
-            if (videoTitle) {
-                const titleElement = document.createElement('div');
-                titleElement.className = 'video-title';
-                titleElement.textContent = videoTitle;
-                videoWrapper.appendChild(titleElement);
-            }
+       function addVideo(platform, videoId, videoTitle) {
+    videoCount++;
+    const videoWrapper = document.createElement('div');
+    videoWrapper.className = 'video-wrapper';
+    videoWrapper.id = `video-wrapper-${videoCount}`;
+    
+    if (videoTitle) {
+        const titleElement = document.createElement('div');
+        titleElement.className = 'video-title';
+        titleElement.textContent = videoTitle;
+        videoWrapper.appendChild(titleElement);
+    }
 
-            let embedCode;
-            switch (platform) {
-                case 'youtube':
-                    embedCode = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                    break;
-                case 'vimeo':
-                    embedCode = `<iframe src="https://player.vimeo.com/video/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-                    break;
-                case 'tiktok':
-                    embedCode = `<blockquote class="tiktok-embed" cite="https://www.tiktok.com/video/${videoId}" data-video-id="${videoId}" style="max-width: 560px; min-width: 325px;"><section></section></blockquote><script async src="https://www.tiktok.com/embed.js"><\/script>`;
-                    break;
-                case 'instagram':
-                    embedCode = `<iframe width="560" height="315" src="https://www.instagram.com/p/${videoId}/embed" frameborder="0"></iframe>`;
-                    break;
-            }
+    let embedCode;
+    switch (platform) {
+        case 'youtube':
+            embedCode = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            break;
+        case 'vimeo':
+            embedCode = `<iframe src="https://player.vimeo.com/video/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+            break;
+        case 'tiktok':
+            embedCode = `<blockquote class="tiktok-embed" cite="https://www.tiktok.com/@username/video/${videoId}" data-video-id="${videoId}" style="max-width: 605px;min-width: 325px;"><section></section></blockquote>`;
+            break;
+        case 'instagram':
+            embedCode = `<iframe width="560" height="315" src="https://www.instagram.com/p/${videoId}/embed" frameborder="0"></iframe>`;
+            break;
+    }
 
-            videoWrapper.innerHTML += embedCode;
+    videoWrapper.innerHTML += embedCode;
 
-            const removeButton = document.createElement('button');
-            removeButton.className = 'remove-button';
-            removeButton.textContent = 'X';
-            removeButton.onclick = function() {
-                videoWrapper.remove();
-            };
-            
-            videoWrapper.appendChild(removeButton);
-            document.getElementById('videoContainer').appendChild(videoWrapper);
-            
-            document.getElementById('videoUrlInput').value = '';
-            document.getElementById('videoTitleInput').value = '';
+    const removeButton = document.createElement('button');
+    removeButton.className = 'remove-button';
+    removeButton.textContent = 'X';
+    removeButton.onclick = function() {
+        videoWrapper.remove();
+    };
+    
+    videoWrapper.appendChild(removeButton);
+    document.getElementById('videoContainer').appendChild(videoWrapper);
+    
+    document.getElementById('videoUrlInput').value = '';
+    document.getElementById('videoTitleInput').value = '';
 
-            setTimeout(() => videoWrapper.style.opacity = '1', 100);
+    setTimeout(() => videoWrapper.style.opacity = '1', 100);
+
+    // Load TikTok embed script if it's a TikTok video
+    if (platform === 'tiktok') {
+        loadTikTokScript();
+    }
+}
+
+function loadTikTokScript() {
+    if (!document.querySelector('script[src="https://www.tiktok.com/embed.js"]')) {
+        const script = document.createElement('script');
+        script.src = "https://www.tiktok.com/embed.js";
+        script.async = true;
+        document.body.appendChild(script);
+    } else {
+        // If the script is already loaded, we need to tell TikTok to process the new embed
+        if (window.tiktok && window.tiktok.reload) {
+            window.tiktok.reload();
         }
-
+    }
+}
         function resizeVideos(size) {
             const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
             videos.forEach(video => {
