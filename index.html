@@ -104,7 +104,7 @@ function extractVideoInfo(url) {
     return { platform, videoId };
 }
 
-       function addVideo(platform, videoId, videoTitle) {
+function addVideo(platform, videoId, videoTitle) {
     videoCount++;
     const videoWrapper = document.createElement('div');
     videoWrapper.className = 'video-wrapper';
@@ -126,7 +126,7 @@ function extractVideoInfo(url) {
             embedCode = `<iframe src="https://player.vimeo.com/video/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
             break;
         case 'tiktok':
-            embedCode = `<blockquote class="tiktok-embed" cite="https://www.tiktok.com/@username/video/${videoId}" data-video-id="${videoId}" style="max-width: 605px;min-width: 325px;"><section></section></blockquote>`;
+            embedCode = `<iframe src="https://www.tiktok.com/embed/v2/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
             break;
         case 'instagram':
             embedCode = `<iframe width="560" height="315" src="https://www.instagram.com/p/${videoId}/embed" frameborder="0"></iframe>`;
@@ -149,7 +149,7 @@ function extractVideoInfo(url) {
     document.getElementById('videoTitleInput').value = '';
 
     setTimeout(() => videoWrapper.style.opacity = '1', 100);
-
+}
     // Load TikTok embed script if it's a TikTok video
     if (platform === 'tiktok') {
         loadTikTokScript();
