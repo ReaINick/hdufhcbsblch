@@ -103,8 +103,20 @@ function extractVideoInfo(url) {
 
     return { platform, videoId };
 }
+async function getTikTokOEmbed(url) {
+    try {
+        const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch TikTok oEmbed data');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching TikTok oEmbed:', error);
+        return null;
+    }
+}
 
-function addVideo(platform, videoId, videoTitle) {
+async function addVideo(platform, videoId, videoTitle) {
     videoCount++;
     const videoWrapper = document.createElement('div');
     videoWrapper.className = 'video-wrapper';
@@ -126,7 +138,13 @@ function addVideo(platform, videoId, videoTitle) {
             embedCode = `<iframe src="https://player.vimeo.com/video/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
             break;
         case 'tiktok':
-            embedCode = `<iframe src="https://www.tiktok.com/embed/v2/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+            const tiktokUrl = `https://www.tiktok.com/video/${videoId}`;
+            const oEmbedData = await getTikTokOEmbed(tiktokUrl);
+            if (oEmbedData && oEmbedData.html) {
+                embedCode = oEmbedData.html;
+            } else {
+                embedCode = `<a href="${tiktokUrl}" target="_blank">View on TikTok</a>`;
+            }
             break;
         case 'instagram':
             embedCode = `<iframe width="560" height="315" src="https://www.instagram.com/p/${videoId}/embed" frameborder="0"></iframe>`;
@@ -150,7 +168,6 @@ function addVideo(platform, videoId, videoTitle) {
 
     setTimeout(() => videoWrapper.style.opacity = '1', 100);
 }
-
 function resizeVideos(size) {
     const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
     videos.forEach(video => {
