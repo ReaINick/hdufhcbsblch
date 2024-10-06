@@ -185,28 +185,6 @@ async function addVideo(platform, videoId, videoTitle) {
         videoWrapper.appendChild(titleElement);
     }
 
-    let embedCode;
-    switch (platform) {
-        case 'youtube':
-            embedCode = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-            break;
-        case 'vimeo':
-            embedCode = `<iframe src="https://player.vimeo.com/video/${videoId}" width="560" height="315" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-            break;
-        case 'tiktok':
-            const tiktokUrl = `https://www.tiktok.com/video/${videoId}`;
-            const oEmbedData = await getTikTokOEmbed(tiktokUrl);
-            if (oEmbedData && oEmbedData.html) {
-                embedCode = oEmbedData.html;
-            } else {
-                embedCode = `<a href="${tiktokUrl}" target="_blank">View on TikTok</a>`;
-            }
-            break;
-        case 'instagram':
-            embedCode = `<iframe width="560" height="315" src="https://www.instagram.com/p/${videoId}/embed" frameborder="0"></iframe>`;
-            break;
-    }
-
     videoWrapper.innerHTML += embedCode;
 
     const removeButton = document.createElement('button');
