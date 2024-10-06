@@ -71,7 +71,7 @@
 document.getElementById('addVideoButton').addEventListener('click', async function() {
     const videoUrl = document.getElementById('videoUrlInput').value.trim();
     const videoTitle = document.getElementById('videoTitleInput').value.trim();
-    
+
     if (videoUrl) {
         const { platform, videoId } = extractVideoInfo(videoUrl);
         if (videoId) {
@@ -81,8 +81,10 @@ document.getElementById('addVideoButton').addEventListener('click', async functi
         }
     }
 });
+
 function extractVideoInfo(url) {
     let platform, videoId;
+
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
         platform = 'youtube';
         const urlParams = new URLSearchParams(new URL(url).search);
@@ -98,6 +100,7 @@ function extractVideoInfo(url) {
         platform = 'instagram';
         videoId = url.split('/')[4];
     }
+
     return { platform, videoId };
 }
 
@@ -106,7 +109,7 @@ function extractVideoInfo(url) {
     const videoWrapper = document.createElement('div');
     videoWrapper.className = 'video-wrapper';
     videoWrapper.id = `video-wrapper-${videoCount}`;
-    
+
     if (videoTitle) {
         const titleElement = document.createElement('div');
         titleElement.className = 'video-title';
@@ -138,10 +141,10 @@ function extractVideoInfo(url) {
     removeButton.onclick = function() {
         videoWrapper.remove();
     };
-    
+
     videoWrapper.appendChild(removeButton);
     document.getElementById('videoContainer').appendChild(videoWrapper);
-    
+
     document.getElementById('videoUrlInput').value = '';
     document.getElementById('videoTitleInput').value = '';
 
@@ -213,7 +216,7 @@ async function addVideo(platform, videoId, videoTitle) {
     const videoWrapper = document.createElement('div');
     videoWrapper.className = 'video-wrapper';
     videoWrapper.id = `video-wrapper-${videoCount}`;
-    
+
     if (videoTitle) {
         const titleElement = document.createElement('div');
         titleElement.className = 'video-title';
@@ -251,10 +254,10 @@ async function addVideo(platform, videoId, videoTitle) {
     removeButton.onclick = function() {
         videoWrapper.remove();
     };
-    
+
     videoWrapper.appendChild(removeButton);
     document.getElementById('videoContainer').appendChild(videoWrapper);
-    
+
     document.getElementById('videoUrlInput').value = '';
     document.getElementById('videoTitleInput').value = '';
 
