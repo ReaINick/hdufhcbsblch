@@ -150,25 +150,7 @@ function addVideo(platform, videoId, videoTitle) {
 
     setTimeout(() => videoWrapper.style.opacity = '1', 100);
 }
-    // Load TikTok embed script if it's a TikTok video
-    if (platform === 'tiktok') {
-        loadTikTokScript();
-    }
-}
 
-function loadTikTokScript() {
-    if (!document.querySelector('script[src="https://www.tiktok.com/embed.js"]')) {
-        const script = document.createElement('script');
-        script.src = "https://www.tiktok.com/embed.js";
-        script.async = true;
-        document.body.appendChild(script);
-    } else {
-        // If the script is already loaded, we need to tell TikTok to process the new embed
-        if (window.tiktok && window.tiktok.reload) {
-            window.tiktok.reload();
-        }
-    }
-}
 function resizeVideos(size) {
     const videos = document.querySelectorAll('#videoContainer iframe, #videoContainer blockquote');
     videos.forEach(video => {
